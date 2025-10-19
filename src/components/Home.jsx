@@ -1,16 +1,65 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Spline from "@splinetool/react-spline";
 import { Link } from "react-router-dom";
 
 const Home = () => {
+  const [splineError, setSplineError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Set a timeout to show fallback if Spline doesn't load
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        setSplineError(true);
+        setIsLoading(false);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
+  const handleSplineLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleSplineError = () => {
+    setSplineError(true);
+    setIsLoading(false);
+  };
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-     
-      <Spline scene="https://prod.spline.design/7YzfjB9O897ToXou/scene.splinecode" />
+      {/* Spline Component with Error Handling */}
+      {!splineError && (
+        <div className="w-full h-full">
+          <Spline 
+            scene="https://prod.spline.design/7YzfjB9O897ToXou/scene.splinecode"
+            onLoad={handleSplineLoad}
+            onError={handleSplineError}
+          />
+        </div>
+      )}
 
+      {/* Fallback Background */}
+      {splineError && (
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+          <div className="absolute inset-0 bg-black/20"></div>
+          {/* Animated background elements */}
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl animate-pulse delay-500"></div>
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {isLoading && !splineError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <div className="text-white text-lg">Loading...</div>
+        </div>
+      )}
       
-       <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-4 pointer-events-none">
-      
+      {/* Main Content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-4 pointer-events-none">
         <h1
           className="text-5xl md:text-9xl font-heading font-bold tracking-wide 
                      bg-gradient-to-r from-yellow-400 via-orange-400 to-purple-500 
@@ -19,7 +68,6 @@ const Home = () => {
           FlowHub
         </h1>
 
-      
         <p className="font-body text-lg md:text-2xl text-amber-100/90 mt-4 max-w-2xl leading-relaxed">
           Visual AI Pipeline Builder for Modern Workflows
         </p>
